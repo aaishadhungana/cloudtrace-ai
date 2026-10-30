@@ -5,6 +5,7 @@ from app.models.finding import Finding
 from app.models.identity import Identity
 from app.models.import_record import ImportRecord
 from app.models.permission_relationship import PermissionRelationship
+from app.models.policy import Policy
 from app.models.resource import Resource
 from app.models.user import User
 
@@ -16,6 +17,7 @@ __all__ = [
     "Identity",
     "ImportRecord",
     "PermissionRelationship",
+    "Policy",
     "Resource",
     "User",
 ]

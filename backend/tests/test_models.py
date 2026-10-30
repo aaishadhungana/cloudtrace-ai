@@ -9,6 +9,7 @@ def test_expected_tables_are_registered():
         "imports",
         "identities",
         "resources",
+        "policies",
         "permission_relationships",
         "analysis_runs",
         "findings",

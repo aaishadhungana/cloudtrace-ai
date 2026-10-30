@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0",
+  "identities": [
+    {
+      "arn": "arn:aws:iam::111122223333:user/alice-admin",
+      "name": "alice-admin",
+      "type": "iam_user",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-admin-full"]
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:user/bob-developer",
+      "name": "bob-developer",
+      "type": "iam_user",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-developer"]
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:user/carol-analyst",
+      "name": "carol-analyst",
+      "type": "iam_user",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-analyst-read", "pol-deny-customer-data"]
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:role/deploy-role",
+      "name": "deploy-role",
+      "type": "iam_role",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-deploy"],
+      "trust_policy": {
+        "statements": [
+          {
+            "sid": "AllowBobAssume",
+            "effect": "Allow",
+            "principals": ["arn:aws:iam::111122223333:user/bob-developer"],
+            "actions": ["sts:AssumeRole"]
+          }
+        ]
+      }
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:role/data-admin-role",
+      "name": "data-admin-role",
+      "type": "iam_role",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-data-admin"],
+      "trust_policy": {
+        "statements": [
+          {
+            "sid": "AllowDeployRoleWithMfa",
+            "effect": "Allow",
+            "principals": ["arn:aws:iam::111122223333:role/deploy-role"],
+            "actions": ["sts:AssumeRole"],
+            "conditions": {
+              "Bool": { "aws:MultiFactorAuthPresent": "true" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:service/app-service",
+      "name": "app-service",
+      "type": "service",
+      "account_id": "111122223333"
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:role/app-runtime-role",
+      "name": "app-runtime-role",
+      "type": "iam_role",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-app-runtime"],
+      "trust_policy": {
+        "statements": [
+          {
+            "sid": "AllowAppService",
+            "effect": "Allow",
+            "principals": ["arn:aws:iam::111122223333:service/app-service"],
+            "actions": ["sts:AssumeRole"]
+          }
+        ]
+      }
+    },
+    {
+      "arn": "arn:aws:iam::999988887777:root",
+      "name": "partner-vendor-account",
+      "type": "external_principal",
+      "account_id": "999988887777"
+    },
+    {
+      "arn": "arn:aws:iam::111122223333:role/vendor-integration-role",
+      "name": "vendor-integration-role",
+      "type": "iam_role",
+      "account_id": "111122223333",
+      "policy_ids": ["pol-vendor-read"],
+      "trust_policy": {
+        "statements": [
+          {
+            "sid": "AllowPartnerAccount",
+            "effect": "Allow",
+            "principals": ["arn:aws:iam::999988887777:root"],
+            "actions": ["sts:AssumeRole"]
+          }
+        ]
+      }
+    }
+  ],
+  "resources": [
+    {
+      "arn": "arn:aws:s3:::acme-customer-data",
+      "name": "acme-customer-data",
+      "type": "storage_bucket",
+      "sensitive": true
+    },
+    {
+      "arn": "arn:aws:s3:::acme-reports",
+      "name": "acme-reports",
+      "type": "storage_bucket",
+      "sensitive": false
+    },
+    {
+      "arn": "arn:aws:s3:::acme-public-assets",
+      "name": "acme-public-assets",
+      "type": "storage_bucket",
+      "sensitive": false,
+      "resource_policy": {
+        "statements": [
+          {
+            "sid": "PublicRead",
+            "effect": "Allow",
+            "principals": ["*"],
+            "actions": ["s3:GetObject"]
+          }
+        ]
+      }
+    },
+    {
+      "arn": "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod/db-password",
+      "name": "prod-db-password",
+      "type": "secret",
+      "sensitive": true,
+      "account_id": "111122223333"
+    },
+    {
+      "arn": "arn:aws:rds:us-east-1:111122223333:db:orders-db",
+      "name": "orders-db",
+      "type": "database",
+      "sensitive": true,
+      "account_id": "111122223333"
+    },
+    {
+      "arn": "arn:aws:ec2:us-east-1:111122223333:instance/i-0abc1234def567890",
+      "name": "app-server-1",
+      "type": "compute",
+      "sensitive": false,
+      "account_id": "111122223333"
+    }
+  ],
+  "policies": [
+    {
+      "id": "pol-admin-full",
+      "name": "AdministratorAccess",
+      "statements": [
+        { "effect": "Allow", "actions": ["*"], "resources": ["*"] }
+      ]
+    },
+    {
+      "id": "pol-developer",
+      "name": "DeveloperAccess",
+      "statements": [
+        {
+          "sid": "AssumeDeployRole",
+          "effect": "Allow",
+          "actions": ["sts:AssumeRole"],
+          "resources": ["arn:aws:iam::111122223333:role/deploy-role"]
+        },
+        {
+          "sid": "ReadReports",
+          "effect": "Allow",
+          "actions": ["s3:GetObject", "s3:ListBucket"],
+          "resources": ["arn:aws:s3:::acme-reports", "arn:aws:s3:::acme-reports/*"]
+        }
+      ]
+    },
+    {
+      "id": "pol-deploy",
+      "name": "DeployRoleAccess",
+      "statements": [
+        { "sid": "AllS3", "effect": "Allow", "actions": ["s3:*"], "resources": ["*"] },
+        { "sid": "PassAnyRole", "effect": "Allow", "actions": ["iam:PassRole"], "resources": ["*"] },
+        {
+          "sid": "AssumeDataAdmin",
+          "effect": "Allow",
+          "actions": ["sts:AssumeRole"],
+          "resources": ["arn:aws:iam::111122223333:role/data-admin-role"]
+        }
+      ]
+    },
+    {
+      "id": "pol-data-admin",
+      "name": "DataAdminAccess",
+      "statements": [
+        {
+          "sid": "CustomerData",
+          "effect": "Allow",
+          "actions": ["s3:*"],
+          "resources": ["arn:aws:s3:::acme-customer-data", "arn:aws:s3:::acme-customer-data/*"]
+        },
+        {
+          "sid": "ReadDbSecret",
+          "effect": "Allow",
+          "actions": ["secretsmanager:GetSecretValue"],
+          "resources": ["arn:aws:secretsmanager:us-east-1:111122223333:secret:prod/db-password"]
+        }
+      ]
+    },
+    {
+      "id": "pol-analyst-read",
+      "name": "AnalystReadOnly",
+      "statements": [
+        {
+          "effect": "Allow",
+          "actions": ["s3:GetObject", "s3:ListBucket"],
+          "resources": ["arn:aws:s3:::acme-*", "arn:aws:s3:::acme-*/*"]
+        }
+      ]
+    },
+    {
+      "id": "pol-deny-customer-data",
+      "name": "DenyCustomerData",
+      "statements": [
+        {
+          "effect": "Deny",
+          "actions": ["s3:*"],
+          "resources": ["arn:aws:s3:::acme-customer-data", "arn:aws:s3:::acme-customer-data/*"]
+        }
+      ]
+    },
+    {
+      "id": "pol-app-runtime",
+      "name": "AppRuntimeAccess",
+      "statements": [
+        {
+          "effect": "Allow",
+          "actions": ["rds-db:connect"],
+          "resources": ["arn:aws:rds:us-east-1:111122223333:db:orders-db"]
+        },
+        {
+          "effect": "Allow",
+          "actions": ["secretsmanager:GetSecretValue"],
+          "resources": ["arn:aws:secretsmanager:us-east-1:111122223333:secret:prod/db-password"]
+        }
+      ]
+    },
+    {
+      "id": "pol-vendor-read",
+      "name": "VendorReportRead",
+      "statements": [
+        {
+          "effect": "Allow",
+          "actions": ["s3:GetObject"],
+          "resources": ["arn:aws:s3:::acme-reports/*"]
+        }
+      ]
+    }
+  ]
+}

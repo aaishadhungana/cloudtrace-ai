@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "identities": [
+    {
+      "arn": "arn:aws:iam::444455556666:user/dev-user",
+      "name": "dev-user",
+      "type": "iam_user",
+      "account_id": "444455556666",
+      "policy_ids": ["dev-sandbox-access"]
+    },
+    {
+      "arn": "arn:aws:iam::444455556666:role/dev-ci-role",
+      "name": "dev-ci-role",
+      "type": "iam_role",
+      "account_id": "444455556666",
+      "policy_ids": ["dev-ci"],
+      "trust_policy": {
+        "statements": [
+          {
+            "effect": "Allow",
+            "principals": ["arn:aws:iam::444455556666:user/dev-user"],
+            "actions": ["sts:AssumeRole"]
+          }
+        ]
+      }
+    }
+  ],
+  "resources": [
+    {
+      "arn": "arn:aws:s3:::acme-dev-sandbox",
+      "name": "acme-dev-sandbox",
+      "type": "storage_bucket",
+      "sensitive": false
+    },
+    {
+      "arn": "arn:aws:ec2:us-east-1:444455556666:instance/i-0dev1234567890abc",
+      "name": "dev-build-server",
+      "type": "compute",
+      "sensitive": false,
+      "account_id": "444455556666"
+    }
+  ],
+  "policies": [
+    {
+      "id": "dev-sandbox-access",
+      "name": "DevSandboxAccess",
+      "statements": [
+        {
+          "effect": "Allow",
+          "actions": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+          "resources": ["arn:aws:s3:::acme-dev-sandbox", "arn:aws:s3:::acme-dev-sandbox/*"]
+        },
+        {
+          "effect": "Allow",
+          "actions": ["sts:AssumeRole"],
+          "resources": ["arn:aws:iam::444455556666:role/dev-ci-role"]
+        }
+      ]
+    },
+    {
+      "id": "dev-ci",
+      "name": "DevCiAccess",
+      "statements": [
+        {
+          "effect": "Allow",
+          "actions": ["ec2:DescribeInstances", "ec2:StartInstances", "ec2:StopInstances"],
+          "resources": ["arn:aws:ec2:us-east-1:444455556666:instance/i-0dev1234567890abc"]
+        }
+      ]
+    }
+  ]
+}

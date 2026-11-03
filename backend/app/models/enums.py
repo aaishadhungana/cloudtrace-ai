@@ -64,3 +64,9 @@ class FindingStatus(StrEnum):
 class PathClassification(StrEnum):
     SUPPORTED = "supported"
     POTENTIAL = "potential"
+
+class Decision(StrEnum):
+    ALLOWED = "allowed"
+    CONDITIONAL = "conditional"
+    EXPLICITLY_DENIED = "explicitly_denied"
+    NOT_ALLOWED = "not_allowed"

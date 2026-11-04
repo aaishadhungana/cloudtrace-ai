@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from enum import StrEnum
 from functools import cached_property
 from typing import Any
 
-from app.models.enums import IdentityType, ResourceType
+from app.models.enums import Decision, IdentityType, ResourceType
 
 POLICY_KIND = "policy"
 TRUST_KIND = "trust"
@@ -15,13 +14,6 @@ PUBLIC_PRINCIPAL = "*"
 
 TARGET_IDENTITY = "identity"
 TARGET_RESOURCE = "resource"
-
-
-class Decision(StrEnum):
-    ALLOWED = "allowed"
-    CONDITIONAL = "conditional"
-    EXPLICITLY_DENIED = "explicitly_denied"
-    NOT_ALLOWED = "not_allowed"
 
 
 @dataclass(frozen=True)

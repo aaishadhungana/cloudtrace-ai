@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, CreatedAt, UUIDPrimaryKey, string_enum
-from app.models.enums import Effect, RelationshipType
+from app.models.enums import Decision, Effect, RelationshipType
 
 
 class PermissionRelationship(UUIDPrimaryKey, CreatedAt, Base):
@@ -18,8 +18,8 @@ class PermissionRelationship(UUIDPrimaryKey, CreatedAt, Base):
         ),
     )
 
-    import_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("imports.id", ondelete="CASCADE"), index=True
+    analysis_run_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("analysis_runs.id", ondelete="CASCADE"), index=True
     )
     source_identity_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("identities.id", ondelete="CASCADE"), index=True
@@ -31,6 +31,7 @@ class PermissionRelationship(UUIDPrimaryKey, CreatedAt, Base):
         ForeignKey("resources.id", ondelete="CASCADE"), index=True
     )
     relationship_type: Mapped[RelationshipType] = mapped_column(string_enum(RelationshipType))
-    effect: Mapped[Effect] = mapped_column(string_enum(Effect), default=Effect.ALLOW)
+    effect: Mapped[Effect] = mapped_column(string_enum(Effect))
+    decision: Mapped[Decision] = mapped_column(string_enum(Decision))
     conditions: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     evidence: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)

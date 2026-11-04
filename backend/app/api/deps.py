@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import InvalidTokenError, decode_access_token
 from app.db.session import get_db
-from app.models import Environment, User
+from app.models import AnalysisRun, Environment, User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -56,3 +56,17 @@ def get_owned_environment(
 
 
 OwnedEnvironment = Annotated[Environment, Depends(get_owned_environment)]
+
+
+def get_owned_run(run_id: uuid.UUID, environment: OwnedEnvironment, db: DbSession) -> AnalysisRun:
+    run = db.scalar(
+        select(AnalysisRun).where(
+            AnalysisRun.id == run_id, AnalysisRun.environment_id == environment.id
+        )
+    )
+    if run is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Analysis run not found")
+    return run
+
+
+OwnedRun = Annotated[AnalysisRun, Depends(get_owned_run)]

@@ -128,12 +128,12 @@ async function send(path: string, options: SendOptions = {}): Promise<Response> 
   return response;
 }
 
-async function requestJson<T>(path: string, options: SendOptions = {}): Promise<T> {
+export async function requestJson<T>(path: string, options: SendOptions = {}): Promise<T> {
   const response = await send(path, options);
   return (await response.json()) as T;
 }
 
-function segment(value: string): string {
+export function segment(value: string): string {
   return encodeURIComponent(value);
 }
 

@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,6 +32,8 @@ class AttackPath(UUIDPrimaryKey, CreatedAt, Base):
     nodes: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     edges: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     evidence: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    risk_factors: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    summary: Mapped[str] = mapped_column(Text)
     risk_score: Mapped[int] = mapped_column(Integer)
     classification: Mapped[PathClassification] = mapped_column(string_enum(PathClassification))
 

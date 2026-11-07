@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, UUIDPrimaryKey, string_enum
@@ -32,6 +32,10 @@ class AnalysisRun(UUIDPrimaryKey, Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finding_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    attack_path_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    paths_incomplete: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
 
     environment: Mapped["Environment"] = relationship(back_populates="analysis_runs")
     findings: Mapped[list["Finding"]] = relationship(

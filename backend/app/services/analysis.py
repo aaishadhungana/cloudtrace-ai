@@ -11,10 +11,12 @@ from app.engine.analyzer import ANALYSIS_VERSION, analyze
 from app.engine.evaluation import EffectiveRelationship
 from app.engine.evidence import ref_summary, relationship_evidence, statement_evidence
 from app.engine.models import TARGET_IDENTITY, Snapshot
+from app.engine.path_models import AttackPathDraft
 from app.engine.rules.base import FindingDraft
 from app.engine.snapshot import build_snapshot
 from app.models import (
     AnalysisRun,
+    AttackPath,
     Environment,
     Finding,
     Identity,
@@ -121,9 +123,7 @@ def _load_import(db: Session, import_id: uuid.UUID) -> LoadedImport:
     )
 
 
-def _finding_row(
-    run_id: uuid.UUID, draft: FindingDraft, loaded: LoadedImport
-) -> Finding:
+def _finding_row(run_id: uuid.UUID, draft: FindingDraft, loaded: LoadedImport) -> Finding:
     return Finding(
         analysis_run_id=run_id,
         fingerprint=draft.fingerprint,
@@ -175,6 +175,25 @@ def _relationship_row(
     )
 
 
+def _attack_path_row(
+    run_id: uuid.UUID, draft: AttackPathDraft, loaded: LoadedImport
+) -> AttackPath:
+    node_ids = {**loaded.identity_ids, **loaded.resource_ids}
+    return AttackPath(
+        analysis_run_id=run_id,
+        fingerprint=draft.fingerprint,
+        start_identity_id=loaded.identity_ids[draft.start_arn],
+        target_resource_id=loaded.resource_ids[draft.target_arn],
+        nodes=[{**node, "id": str(node_ids[node["arn"]])} for node in draft.nodes],
+        edges=draft.edges,
+        evidence=draft.evidence,
+        risk_factors=draft.assessment.factor_dicts(),
+        summary=draft.summary,
+        risk_score=draft.assessment.score,
+        classification=draft.classification,
+    )
+
+
 def run_analysis(db: Session, environment: Environment, import_record: ImportRecord) -> AnalysisRun:
     run = AnalysisRun(
         environment_id=environment.id,
@@ -196,9 +215,12 @@ def run_analysis(db: Session, environment: Environment, import_record: ImportRec
                 for relationship in result.relationships
             ]
         )
+        db.add_all([_attack_path_row(run_id, draft, loaded) for draft in result.attack_paths])
         run.status = AnalysisStatus.COMPLETED
         run.completed_at = datetime.now(timezone.utc)
         run.finding_count = len(result.findings)
+        run.attack_path_count = len(result.attack_paths)
+        run.paths_incomplete = result.paths_incomplete
         db.commit()
     except Exception as error:
         db.rollback()

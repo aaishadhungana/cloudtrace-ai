@@ -38,6 +38,8 @@ class AnalysisRunRead(BaseModel):
     started_at: datetime
     completed_at: datetime | None
     finding_count: int
+    attack_path_count: int
+    paths_incomplete: bool
     severity_counts: SeverityCounts
 
 

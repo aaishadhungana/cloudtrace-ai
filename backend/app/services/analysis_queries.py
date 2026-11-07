@@ -77,6 +77,8 @@ def run_read(run: AnalysisRun, counts: SeverityCounts) -> AnalysisRunRead:
         started_at=run.started_at,
         completed_at=run.completed_at,
         finding_count=run.finding_count,
+        attack_path_count=run.attack_path_count,
+        paths_incomplete=run.paths_incomplete,
         severity_counts=counts,
     )
 

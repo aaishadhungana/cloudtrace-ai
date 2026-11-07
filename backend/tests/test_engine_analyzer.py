@@ -139,7 +139,7 @@ def test_result_lists_its_limitations():
     result = prod_result()
     assert result.limitations
     assert any("conditions" in item.lower() for item in result.limitations)
-    assert result.analysis_version == "1.0.0"
+    assert result.analysis_version == "1.1.0"
 
 
 def test_account_constant_matches_the_sample_account():

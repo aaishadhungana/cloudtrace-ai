@@ -53,7 +53,7 @@ def test_run_on_production_sample_stores_findings(client, db_session, auth_heade
     environment, run = analyzed(client, auth_headers)
     assert run["status"] == "completed"
     assert run["finding_count"] == 6
-    assert run["analysis_version"] == "1.0.0"
+    assert run["analysis_version"] == "1.1.0"
     assert run["severity_counts"] == {"critical": 1, "high": 1, "medium": 3, "low": 1, "info": 0}
     stored = db_session.scalar(
         select(func.count())
@@ -125,7 +125,7 @@ def test_identity_explorer_reflects_findings_and_reach(client, auth_headers):
     runtime = identity_named(*args, "app-runtime-role")
     assert runtime["finding_count"] == 0
     assert runtime["risk_level"] is None
-    assert runtime["reachable_target_count"] == 2
+    assert runtime["reachable_target_count"] == 3
     assert runtime["sensitive_target_count"] == 2
 
 

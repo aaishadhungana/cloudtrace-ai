@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import { EvidenceList } from "@/components/analysis/EvidenceList";
 import { RiskFactorList } from "@/components/analysis/RiskFactorList";
 import { SeverityBadge } from "@/components/analysis/SeverityBadge";
+import { RelatedAttackPaths } from "@/components/attack-paths/RelatedAttackPaths";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
@@ -87,6 +88,16 @@ export default function FindingDetailPage() {
           <Section title="Evidence">
             <EvidenceList items={state.data.evidence} />
           </Section>
+          {(state.data.identity_id || state.data.resource_id) && (
+            <Section title="Related attack paths">
+              <RelatedAttackPaths
+                environmentId={id}
+                runId={runId}
+                startIdentityId={state.data.identity_id ?? undefined}
+                targetResourceId={state.data.resource_id ?? undefined}
+              />
+            </Section>
+          )}
         </>
       )}
     </div>

@@ -21,6 +21,7 @@ export default function RunLayout({ children }: { children: ReactNode }) {
   const tabs = [
     { label: "Overview", href: base },
     { label: "Findings", href: `${base}/findings` },
+    { label: "Attack paths", href: `${base}/attack-paths` },
     { label: "Identities", href: `${base}/identities` },
   ];
 

@@ -22,7 +22,9 @@ export default function RunOverviewPage() {
       <div className="grid grid-cols-5 gap-3">
         {SEVERITY_ORDER.map((severity) => (
           <div key={severity} className="rounded-lg border border-line bg-panel p-4">
-            <p className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${SEVERITY_STYLES[severity]}`}>
+            <p
+              className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${SEVERITY_STYLES[severity]}`}
+            >
               {severity}
             </p>
             <p className="mt-2 text-3xl font-semibold text-white">{run.severity_counts[severity]}</p>
@@ -33,6 +35,8 @@ export default function RunOverviewPage() {
         <dl className="grid grid-cols-[10rem_1fr] gap-y-2 text-sm">
           <dt className="text-slate-500">Findings</dt>
           <dd className="text-slate-200">{run.finding_count}</dd>
+          <dt className="text-slate-500">Attack paths</dt>
+          <dd className="text-slate-200">{run.attack_path_count}</dd>
           <dt className="text-slate-500">Import</dt>
           <dd className="text-slate-200">
             {run.import_source} ({formatDateTime(run.import_created_at)})
@@ -45,6 +49,15 @@ export default function RunOverviewPage() {
           </dd>
         </dl>
       </Section>
+      {run.paths_incomplete && (
+        <p
+          role="status"
+          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"
+        >
+          Attack-path discovery reached a limit (path length, paths per pair or total paths), so
+          this list may not be complete.
+        </p>
+      )}
       <Section title="What this analysis does not cover">
         <ul className="list-disc space-y-2 pl-5 text-sm text-slate-300">
           {run.limitations.map((limitation) => (

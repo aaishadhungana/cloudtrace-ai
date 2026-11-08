@@ -8,6 +8,7 @@ import { DecisionBadge } from "@/components/analysis/DecisionBadge";
 import { EvidenceList } from "@/components/analysis/EvidenceList";
 import { FindingsTable } from "@/components/analysis/FindingsTable";
 import { SeverityBadge } from "@/components/analysis/SeverityBadge";
+import { RelatedAttackPaths } from "@/components/attack-paths/RelatedAttackPaths";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
@@ -54,6 +55,14 @@ export default function IdentityDetailPage() {
 
           <Section title="Findings">
             <FindingsTable findings={state.data.findings} basePath={base} />
+          </Section>
+
+          <Section title="Attack paths from this identity">
+            <RelatedAttackPaths
+              environmentId={id}
+              runId={runId}
+              startIdentityId={identityId}
+            />
           </Section>
 
           <Section title="Effective access">

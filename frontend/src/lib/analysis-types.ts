@@ -30,6 +30,8 @@ export interface AnalysisRun {
   started_at: string;
   completed_at: string | null;
   finding_count: number;
+  attack_path_count: number;
+  paths_incomplete: boolean;
   severity_counts: SeverityCounts;
 }
 

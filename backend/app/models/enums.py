@@ -70,3 +70,8 @@ class Decision(StrEnum):
     CONDITIONAL = "conditional"
     EXPLICITLY_DENIED = "explicitly_denied"
     NOT_ALLOWED = "not_allowed"
+
+class AISubjectType(StrEnum):
+    FINDING = "finding"
+    ATTACK_PATH = "attack_path"
+    SUMMARY = "summary"

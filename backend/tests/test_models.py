@@ -14,4 +14,5 @@ def test_expected_tables_are_registered():
         "analysis_runs",
         "findings",
         "attack_paths",
+        "ai_analyses",
     }

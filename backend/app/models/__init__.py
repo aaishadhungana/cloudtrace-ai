@@ -1,3 +1,4 @@
+from app.models.ai_analysis import AIAnalysis
 from app.models.analysis_run import AnalysisRun
 from app.models.attack_path import AttackPath
 from app.models.environment import Environment
@@ -10,6 +11,7 @@ from app.models.resource import Resource
 from app.models.user import User
 
 __all__ = [
+    "AIAnalysis",
     "AnalysisRun",
     "AttackPath",
     "Environment",

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     import_max_bytes: int = Field(default=1_048_576, ge=1024)
     gemini_api_key: str = ""
     gemini_model: str = ""
+    gemini_timeout_seconds: int = Field(default=30, ge=5, le=120)
+    gemini_max_output_tokens: int = Field(default=8192, ge=512, le=65536)
+    ai_max_prompt_chars: int = Field(default=16000, ge=2000)
 
     @property
     def cors_origin_list(self) -> list[str]:

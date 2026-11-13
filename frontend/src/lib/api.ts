@@ -88,7 +88,7 @@ async function toApiError(response: Response): Promise<ApiError> {
   return new ApiError(fallback, response.status);
 }
 
-async function send(path: string, options: SendOptions = {}): Promise<Response> {
+export async function send(path: string, options: SendOptions = {}): Promise<Response> {
   const { method = "GET", json, rawBody, query, authenticated = true, signal } = options;
   const headers: Record<string, string> = { Accept: "application/json" };
   if (authenticated) {

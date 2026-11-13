@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Play } from "lucide-react";
+import { GitCompare, Play } from "lucide-react";
 import { useCallback, useState } from "react";
 import { SeverityCountsBar } from "@/components/analysis/SeverityBadge";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +27,8 @@ export function AnalysisPanel({ environmentId, hasImport }: AnalysisPanelProps) 
   const { state, reload } = useApiResource(loadRuns);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const completedCount =
+    state.kind === "ready" ? state.data.filter((run) => run.status === "completed").length : 0;
 
   async function handleStart() {
     setStarting(true);
@@ -47,10 +49,21 @@ export function AnalysisPanel({ environmentId, hasImport }: AnalysisPanelProps) 
         <h2 className="text-sm font-medium uppercase tracking-wide text-slate-400">
           Analysis runs
         </h2>
-        <Button loading={starting} disabled={!hasImport} onClick={handleStart}>
-          <Play className="h-4 w-4" aria-hidden />
-          Run analysis
-        </Button>
+        <div className="flex items-center gap-3">
+          {completedCount >= 2 && (
+            <Link
+              href={`/environments/${environmentId}/compare`}
+              className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
+            >
+              <GitCompare className="h-4 w-4" aria-hidden />
+              Compare runs
+            </Link>
+          )}
+          <Button loading={starting} disabled={!hasImport} onClick={handleStart}>
+            <Play className="h-4 w-4" aria-hidden />
+            Run analysis
+          </Button>
+        </div>
       </div>
       {!hasImport && (
         <p className="text-sm text-slate-500">Import a configuration to run an analysis.</p>
@@ -74,7 +87,7 @@ export function AnalysisPanel({ environmentId, hasImport }: AnalysisPanelProps) 
               <p className="text-sm font-medium text-white">{formatDateTime(run.started_at)}</p>
               <p className="text-xs text-slate-500">
                 <span className="capitalize">{run.status}</span> · engine {run.analysis_version} ·{" "}
-                {run.finding_count} findings
+                {run.finding_count} findings · {run.attack_path_count} paths
               </p>
             </div>
             <SeverityCountsBar counts={run.severity_counts} />

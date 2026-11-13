@@ -10,6 +10,7 @@ from app.api import (
     environments,
     health,
     imports,
+    permissions,
     reports,
     rules,
     samples,
@@ -22,6 +23,7 @@ api_router.include_router(environments.router)
 api_router.include_router(imports.router)
 api_router.include_router(analysis.router)
 api_router.include_router(attack_paths.router)
+api_router.include_router(permissions.router)
 api_router.include_router(ai.router)
 api_router.include_router(comparison.router)
 api_router.include_router(reports.router)

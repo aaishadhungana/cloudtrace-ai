@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useCallback } from "react";
+import { FindingAiContent } from "@/components/ai/AiContent";
+import { AiAnalysisSection } from "@/components/ai/AiAnalysisSection";
 import { EvidenceList } from "@/components/analysis/EvidenceList";
 import { RiskFactorList } from "@/components/analysis/RiskFactorList";
 import { SeverityBadge } from "@/components/analysis/SeverityBadge";
@@ -11,6 +13,7 @@ import { RelatedAttackPaths } from "@/components/attack-paths/RelatedAttackPaths
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
+import { createFindingAnalysis, getFindingAnalysis } from "@/lib/ai-api";
 import { getFinding } from "@/lib/analysis-api";
 import { useApiResource } from "@/lib/use-api-resource";
 
@@ -19,6 +22,10 @@ export default function FindingDetailPage() {
   const base = `/environments/${id}/runs/${runId}`;
   const loadFinding = useCallback(
     (signal: AbortSignal) => getFinding(id, runId, findingId, signal),
+    [id, runId, findingId],
+  );
+  const loadAnalysis = useCallback(
+    (signal: AbortSignal) => getFindingAnalysis(id, runId, findingId, signal),
     [id, runId, findingId],
   );
   const { state } = useApiResource(loadFinding);
@@ -98,6 +105,13 @@ export default function FindingDetailPage() {
               />
             </Section>
           )}
+          <AiAnalysisSection
+            environmentId={id}
+            runId={runId}
+            load={loadAnalysis}
+            generate={(refresh) => createFindingAnalysis(id, runId, findingId, refresh)}
+            renderContent={(content) => <FindingAiContent content={content} />}
+          />
         </>
       )}
     </div>

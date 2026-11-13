@@ -1,13 +1,21 @@
 "use client";
 
+import { useCallback } from "react";
+import { SummaryAiContent } from "@/components/ai/AiContent";
+import { AiAnalysisSection } from "@/components/ai/AiAnalysisSection";
 import { SEVERITY_STYLES } from "@/components/analysis/SeverityBadge";
 import { Section } from "@/components/ui/Section";
+import { createSummaryAnalysis, getSummaryAnalysis } from "@/lib/ai-api";
 import { formatDateTime } from "@/lib/format";
 import { SEVERITY_ORDER } from "@/lib/labels";
 import { useRun } from "@/lib/run-context";
 
 export default function RunOverviewPage() {
   const run = useRun();
+  const loadSummary = useCallback(
+    (signal: AbortSignal) => getSummaryAnalysis(run.environment_id, run.id, signal),
+    [run.environment_id, run.id],
+  );
 
   return (
     <div className="space-y-6">
@@ -57,6 +65,15 @@ export default function RunOverviewPage() {
           Attack-path discovery reached a limit (path length, paths per pair or total paths), so
           this list may not be complete.
         </p>
+      )}
+      {run.status === "completed" && (
+        <AiAnalysisSection
+          environmentId={run.environment_id}
+          runId={run.id}
+          load={loadSummary}
+          generate={(refresh) => createSummaryAnalysis(run.environment_id, run.id, refresh)}
+          renderContent={(content) => <SummaryAiContent content={content} />}
+        />
       )}
       <Section title="What this analysis does not cover">
         <ul className="list-disc space-y-2 pl-5 text-sm text-slate-300">

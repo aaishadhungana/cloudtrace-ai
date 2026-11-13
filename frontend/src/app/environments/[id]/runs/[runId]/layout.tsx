@@ -23,6 +23,8 @@ export default function RunLayout({ children }: { children: ReactNode }) {
     { label: "Findings", href: `${base}/findings` },
     { label: "Attack paths", href: `${base}/attack-paths` },
     { label: "Identities", href: `${base}/identities` },
+    { label: "Permissions", href: `${base}/permissions` },
+    { label: "Report", href: `${base}/report` },
   ];
 
   return (
@@ -39,15 +41,14 @@ export default function RunLayout({ children }: { children: ReactNode }) {
       {state.kind === "ready" && (
         <>
           <header>
-            <h1 className="text-2xl font-semibold tracking-tight text-white">
-              Analysis run
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">Analysis run</h1>
             <p className="mt-1 text-xs text-slate-500">
-              {formatDateTime(state.data.started_at)} · <span className="capitalize">{state.data.status}</span>{" "}
-              · engine {state.data.analysis_version}
+              {formatDateTime(state.data.started_at)} ·{" "}
+              <span className="capitalize">{state.data.status}</span> · engine{" "}
+              {state.data.analysis_version}
             </p>
           </header>
-          <nav className="flex gap-1 border-b border-line" aria-label="Run sections">
+          <nav className="flex flex-wrap gap-1 border-b border-line" aria-label="Run sections">
             {tabs.map((tab) => {
               const active = tab.href === base ? pathname === base : pathname.startsWith(tab.href);
               return (

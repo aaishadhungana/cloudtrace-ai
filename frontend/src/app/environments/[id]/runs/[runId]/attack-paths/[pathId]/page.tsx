@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
+import { PathAiContent } from "@/components/ai/AiContent";
+import { AiAnalysisSection } from "@/components/ai/AiAnalysisSection";
 import { DecisionBadge } from "@/components/analysis/DecisionBadge";
 import { RiskFactorList } from "@/components/analysis/RiskFactorList";
 import { SeverityBadge } from "@/components/analysis/SeverityBadge";
@@ -14,6 +16,7 @@ import { PathInspector } from "@/components/attack-paths/PathInspector";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
+import { createPathAnalysis, getPathAnalysis } from "@/lib/ai-api";
 import { getAttackPath } from "@/lib/attack-path-api";
 import type { PathClassification } from "@/lib/attack-path-types";
 import { RELATIONSHIP_LABELS } from "@/lib/labels";
@@ -32,6 +35,10 @@ export default function AttackPathDetailPage() {
   const [selection, setSelection] = useState<Selection>(null);
   const loadPath = useCallback(
     (signal: AbortSignal) => getAttackPath(id, runId, pathId, signal),
+    [id, runId, pathId],
+  );
+  const loadAnalysis = useCallback(
+    (signal: AbortSignal) => getPathAnalysis(id, runId, pathId, signal),
     [id, runId, pathId],
   );
   const { state } = useApiResource(loadPath);
@@ -85,9 +92,7 @@ export default function AttackPathDetailPage() {
                       onClick={() => setSelection({ kind: "edge", index })}
                       aria-pressed={active}
                       className={`flex w-full flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-left text-sm transition-colors ${
-                        active
-                          ? "border-accent bg-accent/10"
-                          : "border-line hover:bg-white/5"
+                        active ? "border-accent bg-accent/10" : "border-line hover:bg-white/5"
                       }`}
                     >
                       <span className="font-mono text-xs text-slate-500">{index + 1}</span>
@@ -112,6 +117,14 @@ export default function AttackPathDetailPage() {
               rawScore={state.data.raw_score}
             />
           </Section>
+
+          <AiAnalysisSection
+            environmentId={id}
+            runId={runId}
+            load={loadAnalysis}
+            generate={(refresh) => createPathAnalysis(id, runId, pathId, refresh)}
+            renderContent={(content) => <PathAiContent content={content} />}
+          />
         </>
       )}
     </div>

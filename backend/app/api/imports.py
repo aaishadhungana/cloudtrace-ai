@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from app.api.deps import DbSession, OwnedEnvironment
+from app.api.limits import import_limit
 from app.core.config import get_settings
 from app.ingest.parser import ImportRejectedError
 from app.ingest.pipeline import process_import
@@ -39,7 +40,12 @@ async def read_limited_body(request: Request) -> bytes:
     return b"".join(chunks)
 
 
-@router.post("", response_model=ImportRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ImportRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[import_limit],
+)
 def create_import(
     environment: OwnedEnvironment,
     body: Annotated[bytes, Depends(read_limited_body)],

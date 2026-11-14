@@ -8,6 +8,7 @@ from app.ai.analyst import Analyst
 from app.ai.errors import AIError
 from app.ai.gemini import NOT_CONFIGURED_MESSAGE, get_analyst
 from app.api.deps import DbSession, OwnedRun
+from app.api.limits import ai_limit
 from app.models.enums import AISubjectType
 from app.schemas.ai import AIAnalysisRead, AIStatus
 from app.services.ai_analysis import (
@@ -54,7 +55,7 @@ def read_finding_analysis(
     return read_stored(db, run, AISubjectType.FINDING, str(finding_id))
 
 
-@router.post("/findings/{finding_id}", response_model=AIAnalysisRead)
+@router.post("/findings/{finding_id}", response_model=AIAnalysisRead, dependencies=[ai_limit])
 def create_finding_analysis(
     run: OwnedRun,
     finding_id: uuid.UUID,
@@ -80,7 +81,7 @@ def read_attack_path_analysis(
     return read_stored(db, run, AISubjectType.ATTACK_PATH, str(path_id))
 
 
-@router.post("/attack-paths/{path_id}", response_model=AIAnalysisRead)
+@router.post("/attack-paths/{path_id}", response_model=AIAnalysisRead, dependencies=[ai_limit])
 def create_attack_path_analysis(
     run: OwnedRun,
     path_id: uuid.UUID,
@@ -102,7 +103,7 @@ def read_summary_analysis(run: OwnedRun, db: DbSession) -> AIAnalysisRead | None
     return read_stored(db, run, AISubjectType.SUMMARY, RUN_KEY)
 
 
-@router.post("/summary", response_model=AIAnalysisRead)
+@router.post("/summary", response_model=AIAnalysisRead, dependencies=[ai_limit])
 def create_summary_analysis(
     run: OwnedRun, db: DbSession, analyst: AnalystDep, refresh: Refresh = False
 ) -> AIAnalysisRead:

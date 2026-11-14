@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.deps import DbSession, OwnedEnvironment, OwnedRun
+from app.api.limits import analysis_limit
 from app.models.enums import FindingStatus, Severity
 from app.schemas.analysis import (
     AnalysisRunCreate,
@@ -38,8 +39,13 @@ router = APIRouter(prefix="/environments/{environment_id}/analysis-runs", tags=[
 
 RULE_ID_PATTERN = r"^CT-[A-Z]{2,6}-[0-9]{3}$"
 
+@router.post(
+    "",
+    response_model=AnalysisRunRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[analysis_limit],
+)
 
-@router.post("", response_model=AnalysisRunRead, status_code=status.HTTP_201_CREATED)
 def start_analysis(
     environment: OwnedEnvironment, db: DbSession, payload: AnalysisRunCreate | None = None
 ) -> AnalysisRunRead:

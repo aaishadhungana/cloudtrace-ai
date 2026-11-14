@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import CurrentUser, DbSession
+from app.api.limits import login_limit, register_limit
 from app.core.config import get_settings
 from app.core.security import create_access_token
 from app.models import User
@@ -10,7 +11,12 @@ from app.services.users import EmailAlreadyRegisteredError, authenticate_user, r
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[register_limit],
+)
 def register(payload: RegisterRequest, db: DbSession) -> User:
     try:
         return register_user(db, payload.email, payload.password)
@@ -20,7 +26,7 @@ def register(payload: RegisterRequest, db: DbSession) -> User:
         ) from error
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[login_limit])
 def login(payload: LoginRequest, db: DbSession) -> TokenResponse:
     user = authenticate_user(db, payload.email, payload.password)
     if user is None:

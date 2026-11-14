@@ -4,9 +4,17 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from app.api.limits import limiter
+from app.core.config import get_settings
 from app.db.session import engine, get_db
 from app.main import app
 from support import register_and_login
+
+
+@pytest.fixture(autouse=True)
+def disable_rate_limits(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(get_settings(), "rate_limit_enabled", False)
+    limiter.reset()
 
 
 @pytest.fixture
